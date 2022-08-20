@@ -3,14 +3,33 @@ package io.github.spritzsn.logger
 import io.github.spritzsn.libuv.hrTime
 import io.github.spritzsn.spritz.{HandlerResult, Request, RequestHandler, Response, responseTime}
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-def apply(): RequestHandler =
+private val predefined =
+  Map(
+    "dev" -> ":method :url :status[color-coded] :response-time;ms - :res[content-length]",
+    "tiny" -> ":method :url :status :res[content-length] - :response-time;ms",
+  ).view mapValues parse
+
+def apply(format: String): RequestHandler =
+  val parsed =
+    parse(format) match
+      case Segment.Literal(name) =>
+        predefined.getOrElse(name, sys.error(s"pre-defined format '$name' not found"))
+      case parsed => parsed
+
   (req: Request, res: Response) =>
     val start = hrTime
 
     res.action { _ =>
       val rt = responseTime(start, 3, true)
+
+      parsed map {
+        case Segment.Literal(s)         => s
+        case Segment.Token("method", _) => req.method
+        case Segment.Token("usr", _)    => req.originalUrl
+      }
     }
     HandlerResult.Next
 
@@ -19,7 +38,7 @@ val tokenMap =
   Map(
     "method" -> Nil,
     "url" -> Nil,
-    "status" -> Nil,
+    "status" -> List("plain", "color-coded"),
     "date" -> List("iso", "web"),
     "req" -> null,
     "res" -> null,
