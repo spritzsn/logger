@@ -14,15 +14,20 @@ def apply(): RequestHandler =
     }
     HandlerResult.Next
 
-val tokenRegex = """:(?<name>[a-zA-Z-]+)(?:\[(?<arg>[a-zA-Z0-9-]+)])?""".r
+val tokenRegex = """:(?<name>[a-zA-Z-]+);?(?:\[(?<arg>[a-zA-Z0-9-]+)])?""".r
 val tokenMap =
   Map(
     "method" -> Nil,
     "url" -> Nil,
     "status" -> Nil,
     "date" -> List("iso", "web"),
+    "req" -> null,
     "res" -> null,
     "response-time" -> List("3", "0", "1", "2"),
+    "user-agent" -> Nil,
+    "remote-addr" -> Nil,
+    "referrer" -> Nil,
+    "http-version" -> Nil,
   )
 
 def parse(format: String): List[Segment] =

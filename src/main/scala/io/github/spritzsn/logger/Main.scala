@@ -8,7 +8,7 @@ import io.github.spritzsn.fs.*
 import io.github.spritzsn.libuv.*
 
 @main def run(): Unit =
-  println(parse(":method :url :status :res[content-length] - :response-time[2] ms"))
+  println(parse(":method :url :status :date :res[content-length] - :response-time;ms"))
 
 //  async {
 //    val fd = await(open("asdf", O_WRONLY | O_CREAT, S_IRWXU))
