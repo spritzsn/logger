@@ -1,7 +1,9 @@
 package io.github.spritzsn.logger
 
-import io.github.spritzsn.libuv.hrTime
+import io.github.spritzsn.libuv.{O_CREAT, O_APPEND, O_WRONLY, O_SYNC, S_IRUSR, S_IWUSR, hrTime}
 import io.github.spritzsn.spritz.{HandlerResult, Request, RequestHandler, Response, responseTime}
+import io.github.spritzsn.fs
+import io.github.spritzsn.async.*
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -12,12 +14,13 @@ private val predefined =
     "tiny" -> ":method :url :status :res[content-length] - :response-time;ms",
   ).view mapValues parse
 
-def apply(format: String): RequestHandler =
+def apply(format: String, log: String): RequestHandler =
   val parsed =
     parse(format) match
       case List(Segment.Literal(name)) =>
         predefined.getOrElse(name, sys.error(s"pre-defined format '$name' not found"))
       case parsed => parsed
+  val out = fs.open(log, O_CREAT | O_APPEND | O_WRONLY | O_SYNC, S_IRUSR | S_IWUSR)
 
   (req: Request, res: Response) =>
     val start = hrTime
@@ -25,15 +28,27 @@ def apply(format: String): RequestHandler =
     res.action { _ =>
       val entry =
         parsed map {
-          case Segment.Literal(s)                     => s
-          case Segment.Token("method", _)             => req.method
-          case Segment.Token("url", _)                => req.originalUrl
-          case Segment.Token("status", _)             => res.statusCode.map(_.toString) getOrElse "-"
+          case Segment.Literal(s)         => s
+          case Segment.Token("method", _) => req.method
+          case Segment.Token("url", _)    => req.originalUrl
+          case Segment.Token("status", arg) =>
+            val status = res.statusCode.map(_.toString) getOrElse "-"
+
+            if arg.get == "color-coded" then
+              val color =
+                status.head match
+                  case '2' => Console.GREEN
+                  case '3' => Console.CYAN
+                  case '4' => Console.YELLOW
+                  case '5' => Console.RED
+
+              s"$color$status${Console.RESET}"
+            else status
           case Segment.Token("res", header)           => res.headers getOrElse (header.get, "-")
           case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
         } mkString
 
-      println(entry)
+      out map (_.write(s"$entry\n"))
     }
     HandlerResult.Next
 
