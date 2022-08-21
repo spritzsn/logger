@@ -1,6 +1,6 @@
 name := "logger"
 
-version := "0.0.2"
+version := "0.0.4"
 
 scalaVersion := "3.1.3"
 
@@ -38,7 +38,7 @@ homepage := Some(url("https://github.com/spritzsn/" + name.value))
 //libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.13" % "test"
 
 libraryDependencies ++= Seq(
-  "io.github.spritzsn" %%% "spritz" % "0.0.17",
+  "io.github.spritzsn" %%% "spritz" % "0.0.18",
   "io.github.spritzsn" %%% "fs" % "0.0.4",
 )
 

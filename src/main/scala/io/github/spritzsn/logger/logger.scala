@@ -1,6 +1,6 @@
 package io.github.spritzsn.logger
 
-import io.github.spritzsn.libuv.{O_CREAT, O_APPEND, O_WRONLY, O_SYNC, S_IRUSR, S_IWUSR, hrTime}
+import io.github.spritzsn.libuv.{O_CREAT, O_APPEND, O_WRONLY, O_DSYNC, S_IRUSR, S_IWUSR, hrTime}
 import io.github.spritzsn.spritz.{HandlerResult, Request, RequestHandler, Response, responseTime}
 import io.github.spritzsn.fs.{FileHandle, open, stdout}
 import io.github.spritzsn.async.*
@@ -22,7 +22,7 @@ def apply(format: String, log: String = null): RequestHandler =
       case parsed => parsed
   val out =
     if log == null then Future(stdout)
-    else open(log, O_CREAT | O_APPEND | O_WRONLY | O_SYNC, S_IRUSR | S_IWUSR)
+    else open(log, O_CREAT | O_APPEND | O_WRONLY | O_DSYNC, S_IRUSR | S_IWUSR)
 
   (req: Request, res: Response) =>
     val start = hrTime
