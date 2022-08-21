@@ -27,7 +27,7 @@ def apply(format: String): RequestHandler =
         parsed map {
           case Segment.Literal(s)                     => s
           case Segment.Token("method", _)             => req.method
-          case Segment.Token("usr", _)                => req.originalUrl
+          case Segment.Token("url", _)                => req.originalUrl
           case Segment.Token("status", _)             => res.statusCode.map(_.toString) getOrElse "-"
           case Segment.Token("res", header)           => res.headers getOrElse (header.get, "-")
           case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
