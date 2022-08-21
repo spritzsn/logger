@@ -2,11 +2,11 @@ package io.github.spritzsn.logger
 
 import io.github.spritzsn.libuv.{O_CREAT, O_APPEND, O_WRONLY, O_SYNC, S_IRUSR, S_IWUSR, hrTime}
 import io.github.spritzsn.spritz.{HandlerResult, Request, RequestHandler, Response, responseTime}
-import io.github.spritzsn.fs
+import io.github.spritzsn.fs.{FileHandle, open, stdout}
 import io.github.spritzsn.async.*
 
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Future
 
 private val predefined =
   Map(
@@ -14,13 +14,15 @@ private val predefined =
     "tiny" -> ":method :url :status :res[content-length] - :response-time;ms",
   ).view mapValues parse
 
-def apply(format: String, log: String): RequestHandler =
+def apply(format: String, log: String = null): RequestHandler =
   val parsed =
     parse(format) match
       case List(Segment.Literal(name)) =>
         predefined.getOrElse(name, sys.error(s"pre-defined format '$name' not found"))
       case parsed => parsed
-  val out = fs.open(log, O_CREAT | O_APPEND | O_WRONLY | O_SYNC, S_IRUSR | S_IWUSR)
+  val out =
+    if log == null then Future(stdout)
+    else open(log, O_CREAT | O_APPEND | O_WRONLY | O_SYNC, S_IRUSR | S_IWUSR)
 
   (req: Request, res: Response) =>
     val start = hrTime
@@ -48,7 +50,7 @@ def apply(format: String, log: String): RequestHandler =
           case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
         } mkString
 
-      out map (_.write(s"$entry\n"))
+      out foreach (_.write(s"$entry\n"))
     }
     HandlerResult.Next
 

@@ -1,6 +1,6 @@
 name := "logger"
 
-version := "0.0.1"
+version := "0.0.2"
 
 scalaVersion := "3.1.3"
 
@@ -39,7 +39,7 @@ homepage := Some(url("https://github.com/spritzsn/" + name.value))
 
 libraryDependencies ++= Seq(
   "io.github.spritzsn" %%% "spritz" % "0.0.17",
-  "io.github.spritzsn" %%% "fs" % "0.0.3",
+  "io.github.spritzsn" %%% "fs" % "0.0.4",
 )
 
 //libraryDependencies ++= Seq(
