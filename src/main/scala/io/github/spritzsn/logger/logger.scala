@@ -15,7 +15,7 @@ private val predefined =
 def apply(format: String): RequestHandler =
   val parsed =
     parse(format) match
-      case Segment.Literal(name) =>
+      case List(Segment.Literal(name)) =>
         predefined.getOrElse(name, sys.error(s"pre-defined format '$name' not found"))
       case parsed => parsed
 
@@ -23,13 +23,17 @@ def apply(format: String): RequestHandler =
     val start = hrTime
 
     res.action { _ =>
-      val rt = responseTime(start, 3, true)
+      val entry =
+        parsed map {
+          case Segment.Literal(s)                     => s
+          case Segment.Token("method", _)             => req.method
+          case Segment.Token("usr", _)                => req.originalUrl
+          case Segment.Token("status", _)             => res.statusCode.map(_.toString) getOrElse "-"
+          case Segment.Token("res", header)           => res.headers getOrElse (header.get, "-")
+          case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
+        } mkString
 
-      parsed map {
-        case Segment.Literal(s)         => s
-        case Segment.Token("method", _) => req.method
-        case Segment.Token("usr", _)    => req.originalUrl
-      }
+      println(entry)
     }
     HandlerResult.Next
 
