@@ -27,7 +27,7 @@ def apply(format: String, log: String = null): RequestHandler =
   (req: Request, res: Response) =>
     val start = hrTime
 
-    res.action { _ =>
+    res action {
       val entry =
         parsed map {
           case Segment.Literal(s)         => s
@@ -48,6 +48,7 @@ def apply(format: String, log: String = null): RequestHandler =
             else status
           case Segment.Token("res", header)           => res.headers getOrElse (header.get, "-")
           case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
+          case _                                      => // already checked
         } mkString
 
       out foreach (_.write(s"$entry\n"))
