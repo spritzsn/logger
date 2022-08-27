@@ -1,7 +1,7 @@
 package io.github.spritzsn.logger
 
 import io.github.spritzsn.libuv.{O_CREAT, O_APPEND, O_WRONLY, O_DSYNC, S_IRUSR, S_IWUSR, hrTime}
-import io.github.spritzsn.spritz.{HandlerResult, Request, RequestHandler, Response, responseTime}
+import io.github.spritzsn.spritz.{HandlerResult, RequestHandler, responseTime}
 import io.github.spritzsn.fs.{FileHandle, open, stdout}
 import io.github.spritzsn.async.*
 
@@ -24,7 +24,7 @@ def apply(format: String, log: String = null): RequestHandler =
     if log == null then Future(stdout)
     else open(log, O_CREAT | O_APPEND | O_WRONLY | O_DSYNC, S_IRUSR | S_IWUSR)
 
-  (req: Request, res: Response) =>
+  (req, res) =>
     val start = hrTime
 
     res action {
@@ -71,7 +71,7 @@ val tokenMap =
     "http-version" -> Nil,
   )
 
-def parse(format: String): List[Segment] =
+private def parse(format: String): List[Segment] =
   val buf = new ListBuffer[Segment]
   var idx = 0
 
@@ -99,6 +99,6 @@ def parse(format: String): List[Segment] =
   if format.length > idx then buf += Segment.Literal(format.substring(idx))
   buf.toList
 
-enum Segment:
+private enum Segment:
   case Token(name: String, arg: Option[String]) extends Segment
   case Literal(s: String) extends Segment
