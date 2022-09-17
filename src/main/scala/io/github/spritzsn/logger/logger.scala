@@ -1,10 +1,11 @@
 package io.github.spritzsn.logger
 
-import io.github.spritzsn.libuv.{O_CREAT, O_APPEND, O_WRONLY, O_DSYNC, S_IRUSR, S_IWUSR, hrTime}
+import io.github.spritzsn.libuv.{O_APPEND, O_CREAT, O_DSYNC, O_WRONLY, S_IRUSR, S_IWUSR, hrTime}
 import io.github.spritzsn.spritz.{HandlerResult, RequestHandler, responseTime}
 import io.github.spritzsn.fs.{FileHandle, open, stdout}
 import io.github.spritzsn.async.*
 
+import java.time.Instant
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 
@@ -46,8 +47,10 @@ def apply(format: String, log: String = null): RequestHandler =
 
               s"$color$status${Console.RESET}"
             else status
-          case Segment.Token("res", header)           => res.headers getOrElse (header.get, "-")
+          case Segment.Token("res", header)           => res get header.get getOrElse "-"
           case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
+          case Segment.Token("remote-addr", _)        => req.ip
+          case Segment.Token("date", Some("iso"))     => Instant.now.toString
           case _                                      => // already checked
         } mkString
 

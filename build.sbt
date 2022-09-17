@@ -1,8 +1,8 @@
 name := "logger"
 
-version := "0.0.6"
+version := "0.0.8"
 
-scalaVersion := "3.1.3"
+scalaVersion := "3.2.0"
 
 enablePlugins(ScalaNativePlugin)
 
@@ -38,8 +38,8 @@ homepage := Some(url("https://github.com/spritzsn/" + name.value))
 //libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.13" % "test"
 
 libraryDependencies ++= Seq(
-  "io.github.spritzsn" %%% "spritz" % "0.0.31",
-  "io.github.spritzsn" %%% "fs" % "0.0.4",
+  "io.github.spritzsn" %%% "spritz" % "0.0.43",
+  "io.github.spritzsn" %%% "fs" % "0.0.8",
 )
 
 //libraryDependencies ++= Seq(

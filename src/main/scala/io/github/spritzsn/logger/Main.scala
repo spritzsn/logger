@@ -5,7 +5,7 @@
 //@main def run(): Unit =
 //  Server("ExampleServer/1.0") { app =>
 //    app
-//      .use(apply("dev"))
+//      .use(apply(":remote-addr :date[iso] :method"))
 //      .get("/", (_: Request, res: Response) => res.send("hello"))
 //    app.listen(3000)
 //    println("listening")
