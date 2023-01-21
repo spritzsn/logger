@@ -1,6 +1,6 @@
 name := "logger"
 
-version := "0.0.9"
+version := "0.0.10"
 
 scalaVersion := "3.2.1"
 
