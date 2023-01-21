@@ -47,11 +47,14 @@ def apply(format: String, log: String = null): RequestHandler =
 
               s"$color$status${Console.RESET}"
             else status
+          case Segment.Token("req", header)           =>
+            println(req.headers)
+            req get header.get getOrElse "-"
           case Segment.Token("res", header)           => res get header.get getOrElse "-"
           case Segment.Token("response-time", digits) => responseTime(start, digits.get.toInt, false)
           case Segment.Token("remote-addr", _)        => req.ip
           case Segment.Token("date", Some("iso"))     => Instant.now.toString
-          case _                                      => // already checked
+          case s                                      => sys.error(s"unknown logger format segment: $s")
         } mkString
 
       out foreach (_.write(s"$entry\n"))
